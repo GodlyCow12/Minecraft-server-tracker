@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Server Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-lg p-6 bg-gray-800 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold text-center mb-4">Minecraft Server Checker</h1>
+        <input type="text" id="serverIp" placeholder="Enter Server IP" 
+               class="w-full p-2 text-black rounded-md outline-none">
+        <button onclick="checkServer()" 
+                class="w-full mt-3 bg-green-500 hover:bg-green-600 text-white font-bold p-2 rounded">
+            Check
+        </button>
+        <div id="result" class="mt-4 text-center text-lg"></div>
+    </div>
+
+    <script>
+        async function checkServer() {
+            let ip = document.getElementById("serverIp").value.trim();
+            let resultDiv = document.getElementById("result");
+
+            if (!ip) {
+                resultDiv.innerHTML = "<p class='text-red-400'>Please enter a server IP!</p>";
+                return;
+            }
+
+            resultDiv.innerHTML = "<p class='text-yellow-300'>Checking...</p>";
+
+            try {
+                let response = await fetch(`https://api.mcsrvstat.us/2/${ip}`);
+                let data = await response.json();
+
+                if (!data.online) {
+                    resultDiv.innerHTML = `<p class='text-red-400'>Server is offline or invalid.</p>`;
+                    return;
+                }
+
+                let playerCount = data.players.online;
+                let maxPlayers = data.players.max;
+
+                resultDiv.innerHTML = `
+                    <p class='text-green-400'>✅ Server is online!</p>
+                    <p>Players: <strong>${playerCount}</strong> / ${maxPlayers}</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = "<p class='text-red-400'>Error fetching data.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
